@@ -1,0 +1,93 @@
+version: '3.3'
+services:
+  nginx:
+    build:
+      context: ../../dockerfiles/nginx
+      dockerfile: Dockerfile
+    command: sh /home/scripts/start.sh
+    volumes:
+      - ../nginx/nginx_config_dev.conf:/etc/nginx/conf.d/default.conf
+      - ../../app:/var/www/html
+      - ../scripts/nginx:/home/scripts
+      - ../../cert:/home/cert
+    ports:
+      # - 80:80
+      - 8082:8082
+      # - 8084:8084
+  # php:
+  #   build:
+  #     context: ../../dockerfiles/php
+  #     dockerfile: Dockerfile_dev
+  #   volumes:
+  #     - ../../app:/var/www/html
+  #     - ../scripts/php:/home/scripts
+  #   command: sh /home/scripts/start.sh
+  gogs:
+    build:
+      context: ../../dockerfiles/gogs
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    volumes:
+      - ../../gogs:/home/gogs
+      - ../scripts/gogs:/home/scripts
+    command: sh /home/scripts/start.sh
+  # workspace:
+  #   build:
+  #     context: ../../dockerfiles/php
+  #     dockerfile: Dockerfile_dev
+  #   user: "${UID}"
+  #   volumes:
+  #     - ../../app:/var/www/html
+  #     - ../scripts/php:/home/scripts
+  #   command: sh /home/scripts/workspace.sh
+  db:
+    build:
+      context: ../../dockerfiles/mysql
+      dockerfile: Dockerfile
+    volumes:
+      - ../../data/mysql:/var/lib/mysql
+      - ../../dumps:/home/dumps
+      - ../scripts/mysql:/home/scripts
+    # ports:
+    #   - 3306:3306
+    command: sh /home/scripts/start.sh
+  # gogs:
+  #   depends_on:
+  #     - db
+  #     - nginx
+  #   image: "gogs/gogs:0.12.1"
+  #   ports:
+  #     - "127.0.0.1:3000:3000"
+  #     - "127.0.0.1:4000:4000"
+  #   volumes:
+  #     - ../../data/gogs:/data
+  # adminer:
+  #   image: adminer
+  #   restart: always
+  #   ports:
+  #       - 8080:8080
+  # nodejs:
+  #   build:
+  #     context: ../../dockerfiles/nodejs
+  #     dockerfile: Dockerfile
+  #   volumes:
+  #     - ../scripts/nodejs:/home/scripts
+  #     - ../../app:/home/app
+  #   command: sh /home/scripts/start.sh
+  ftp:
+    build:
+      context: ../../dockerfiles/python
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+      - 2121:2121
+    volumes:
+      - ../../cert:/home/cert
+      - ../../ftp:/home/ftp
+      - ../scripts/python:/home/scripts
+    command: sh /home/scripts/start.sh
+networks:
+  default:
+    external:
+      name: dockernet
