@@ -83,6 +83,7 @@ services:
       - 3000:3000
       - 2121:2121
     volumes:
+      - ../../data/ftp:/home/data
       - ../../cert:/home/cert
       - ../../ftp:/home/ftp
       - ../scripts/python:/home/scripts
